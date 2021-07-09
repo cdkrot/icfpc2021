@@ -19,8 +19,12 @@ def api_post(url: str, data, headers=dict()):
     headers['Authorization'] = f'Bearer {API_TOKEN}'
     
     r = requests.post(f'https://poses.live/api/{url}', headers=headers, data=data)
-    return r.text
+    return r.json()
     
 
 def load(problem: str) -> Input:
-    pass
+    inp = Input()
+    inp.read_json(api_get(f'problems/{problem}'))
+    return inp
+
+
