@@ -18,6 +18,7 @@ class ICFPCPainter(QWidget):
         self.setGeometry(0, 0, ICFPCPainter.WIDTH, ICFPCPainter.HEIGHT)
         self.hole = input.hole
         self.figure = input.figure
+        self.dragging = False
         self.init_cds()
         self.show()
 
@@ -34,7 +35,17 @@ class ICFPCPainter(QWidget):
         ny = (y - self.min_y) / (self.max_y - self.min_y) * (ICFPCPainter.HEIGHT - 2 * mgn) + mgn
         return nx, ny
 
+    def unscale(self, p):
+        x, y = p
+        mgn = ICFPCPainter.MARGIN
+        nx = (x - mgn) / (ICFPCPainter.WIDTH - 2 * mgn) * (self.max_x - self.min_x) + self.min_x
+        ny = (y - mgn) / (ICFPCPainter.HEIGHT - 2 * mgn) * (self.max_y - self.min_y) + self.min_y
+        return net.Vec(nx, ny)
+
     def paintEvent(self, e):
+        self.draw_input()
+
+    def draw_input(self):
         self.qp = QPainter()
         self.qp.begin(self)
         self.draw_hole()
@@ -60,6 +71,18 @@ class ICFPCPainter(QWidget):
 
     def draw_line(self, a, b):
         self.qp.drawLine(QPoint(*self.scale(a)), QPoint(*self.scale(b)))
+
+    def mousePressEvent(self, e):
+        self.dragging = True
+        print("mouse press", e)
+
+    def mouseMoveEvent(self, e):
+        if self.dragging:
+            print("mouse move", e)
+
+    def mouseReleaseEvent(self, e):
+        self.dragging = True
+        print("mouse release", e)
 
 
 class Figure:
