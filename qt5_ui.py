@@ -104,6 +104,8 @@ class ICFPCPainter(QWidget):
             self.draw_line(self.hole.vertices[i - 1], self.hole.vertices[i])
 
     def draw_figure(self):
+        from fractions import Fraction
+
         self.qp.setPen(QPen(Qt.green, Qt.SolidLine))
         self.qp.setBrush(QBrush(Qt.darkGreen, Qt.SolidPattern))
         for v in self.figure.vertices.vertices:
@@ -112,8 +114,8 @@ class ICFPCPainter(QWidget):
         for u, v in self.figure.edges:
             new_d = self.figure.vertices.vertices[u] - self.figure.vertices.vertices[v]
             old_d = self.input.figure.vertices.vertices[u] - self.input.figure.vertices.vertices[v]
-            correct_coef = (self.input.epsilon / 10 ** 6)
-            coef = (new_d.x * new_d.x + new_d.y * new_d.y) / (old_d.x * old_d.x + old_d.y * old_d.y) - 1
+            correct_coef = Fraction(self.input.epsilon / 10 ** 6)
+            coef = Fraction((new_d.x * new_d.x + new_d.y * new_d.y) / (old_d.x * old_d.x + old_d.y * old_d.y) - 1)
             if abs(coef) > correct_coef:
                 if (coef > 0):
                     self.qp.setPen(QPen(Qt.blue, Qt.SolidLine))
