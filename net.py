@@ -1,5 +1,6 @@
 import requests
 from structures import *
+import lib
 import copy
 import json
 
@@ -44,7 +45,18 @@ def check_score(problem: Input, solution: VerticesList):
         if ratio > Fraction(problem.epsilon, int(1e6)):
             return ('fail', f"edge {a}-{b} has bad length")
 
-    return ('ok', 0)
+    for a in range(len(solution)):
+        if not lib.inside_polygon(solution[a], problem.hole.vertices):
+            return ('fail', f"vertex {a} not inside the hole")
+
+    dislikes = 0
+    for h in problem.hole:
+        closest = int(1e18)
+
+        for v in solution:
+            closest = min(closest, (h - v).len())
+        dislikes += closest
+    return ('ok', closest)
 
 
 def check_and_submit(problem: Input, solution: VerticesList):
