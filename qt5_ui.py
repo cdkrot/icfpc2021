@@ -9,6 +9,7 @@ import net
 from structures import *
 from physics import Physics
 
+
 class ICFPCPainter(QWidget):
     POINT_RADIUS = 4
     WIDTH = 700
@@ -41,7 +42,7 @@ class ICFPCPainter(QWidget):
         transformed = (1 / ICFPCPainter.HEIGHT) * transformed
         transformed -= Vec(0.5, 0.5)
         transformed *= self.scale_factor
-        
+
         return transformed + self.center
 
     def paintEvent(self, e):
@@ -92,13 +93,17 @@ class ICFPCPainter(QWidget):
         for u, v in self.figure.edges:
             new_d = self.figure.vertices.vertices[u] - self.figure.vertices.vertices[v]
             old_d = self.input.figure.vertices.vertices[u] - self.input.figure.vertices.vertices[v]
-            coef = (self.input.epsilon / 10**6)
-            if abs((new_d.x * new_d.x + new_d.y * new_d.y) /
-                   (old_d.x * old_d.x + old_d.y * old_d.y) - 1) > coef:
-                self.qp.setPen(QPen(Qt.blue, Qt.SolidLine))
+            correct_coef = (self.input.epsilon / 10 ** 6)
+            coef = (new_d.x * new_d.x + new_d.y * new_d.y) / (old_d.x * old_d.x + old_d.y * old_d.y) - 1
+            if abs(coef) > correct_coef:
+                if (coef > 0):
+                    self.qp.setPen(QPen(Qt.blue, Qt.SolidLine))
+                else:
+                    self.qp.setPen(QPen(Qt.red, Qt.SolidLine))
             else:
                 self.qp.setPen(QPen(Qt.darkGreen, Qt.SolidLine))
             self.draw_line(self.figure.vertices.vertices[u], self.figure.vertices.vertices[v])
+
     def draw_point(self, point):
         r = ICFPCPainter.POINT_RADIUS
         self.qp.drawEllipse(QPoint(*self.scale(point)), r, r)
@@ -136,8 +141,6 @@ def main():
     app = QApplication(sys.argv)
     window = ICFPCPainter(problem_input)
     app.exec_()
-
-
 
 
 if __name__ == "__main__":
