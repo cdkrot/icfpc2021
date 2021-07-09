@@ -85,7 +85,7 @@ class ICFPCPainter(QWidget):
 
     def draw_figure(self):
         self.qp.setPen(QPen(Qt.green, Qt.SolidLine))
-        self.qp.setBrush(QBrush(Qt.green, Qt.SolidPattern))
+        self.qp.setBrush(QBrush(Qt.darkGreen, Qt.SolidPattern))
         for v in self.figure.vertices.vertices:
             self.draw_point(v)
 
@@ -95,10 +95,10 @@ class ICFPCPainter(QWidget):
             coef = (self.input.epsilon / 10**6)
             if abs((new_d.x * new_d.x + new_d.y * new_d.y) /
                    (old_d.x * old_d.x + old_d.y * old_d.y) - 1) > coef:
-                self.qp.setPen(QPen(Qt.red, Qt.SolidLine))
-
+                self.qp.setPen(QPen(Qt.blue, Qt.SolidLine))
+            else:
+                self.qp.setPen(QPen(Qt.darkGreen, Qt.SolidLine))
             self.draw_line(self.figure.vertices.vertices[u], self.figure.vertices.vertices[v])
-            self.qp.setPen(QPen(Qt.green, Qt.SolidLine))
     def draw_point(self, point):
         r = ICFPCPainter.POINT_RADIUS
         self.qp.drawEllipse(QPoint(*self.scale(point)), r, r)

@@ -65,4 +65,4 @@ def check_and_submit(problem: Input, solution: VerticesList):
         raise RuntimeError(f"Bad submission (reason: {sc[1]})")
 
     submit(problem.problem_id, solution)
-    print("Submitted {problem.problem_id}, expected score is {sc[1]}")
+    print(f"Submitted {problem.problem_id}, expected score is {sc[1]}")
