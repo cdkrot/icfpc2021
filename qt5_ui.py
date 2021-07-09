@@ -14,6 +14,7 @@ class ICFPCPainter(QWidget):
     WIDTH = 700
     HEIGHT = 700
     MARGIN = 50
+    DRAG_THRESHOLD = 9
 
     def __init__(self, input):
         super(QWidget, self).__init__()
@@ -21,6 +22,7 @@ class ICFPCPainter(QWidget):
         self.hole = input.hole
         self.input = input
         self.figure = input.figure
+        self.dragging = False
         self.init_cds()
         self.show()
 
@@ -37,7 +39,17 @@ class ICFPCPainter(QWidget):
         ny = (y - self.min_y) / (self.max_y - self.min_y) * (ICFPCPainter.HEIGHT - 2 * mgn) + mgn
         return nx, ny
 
+    def unscale(self, p):
+        x, y = p
+        mgn = ICFPCPainter.MARGIN
+        nx = (x - mgn) / (ICFPCPainter.WIDTH - 2 * mgn) * (self.max_x - self.min_x) + self.min_x
+        ny = (y - mgn) / (ICFPCPainter.HEIGHT - 2 * mgn) * (self.max_y - self.min_y) + self.min_y
+        return net.Vec(nx, ny)
+
     def paintEvent(self, e):
+        self.draw_input()
+
+    def draw_input(self):
         self.qp = QPainter()
         self.qp.begin(self)
         self.draw_hole()
@@ -66,6 +78,28 @@ class ICFPCPainter(QWidget):
 
     def draw_line(self, a, b):
         self.qp.drawLine(QPoint(*self.scale(a)), QPoint(*self.scale(b)))
+
+    def mousePressEvent(self, e):
+        self.dragging = None
+        pos = self.unscale((e.pos().x(), e.pos().y()))
+        mndist_id = 0
+        mndist = 1e18
+        for i in range(len(self.figure.vertices.vertices)):
+            new_mndist = (self.figure.vertices.vertices[i] - pos).len2()
+            if new_mndist < mndist:
+                mndist = new_mndist
+                mndist_id = i
+        if mndist <= ICFPCPainter.DRAG_THRESHOLD:
+            self.dragging = mndist_id
+
+    def mouseMoveEvent(self, e):
+        if self.dragging is not None:
+            self.figure.vertices.vertices[self.dragging] = self.unscale((e.pos().x(), e.pos().y()))
+            self.update()
+
+    def mouseReleaseEvent(self, e):
+        self.dragging = None
+
 
 def main():
     argparser = argparse.ArgumentParser()

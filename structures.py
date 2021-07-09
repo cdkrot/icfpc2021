@@ -46,6 +46,17 @@ class Vec:
     def len2(self):
         return self.x * self.x + self.y * self.y
 
+    def len(self):
+        return self.len2() ** 0.5
+
+    @staticmethod
+    def dot(v1, v2):
+        return v1.x * v2.x + v1.y * v2.y
+
+    @staticmethod
+    def cross(v1, v2):
+        return v1.x * v2.y - v1.y * v2.x
+
 
 # Hole
 # solution
@@ -68,6 +79,9 @@ class VerticesList:
 
     def __setitem__(self, i, val):
         self.vertices[i] = val
+
+    def __len__(self):
+        return len(self.vertices)
 
 
 class Figure:
