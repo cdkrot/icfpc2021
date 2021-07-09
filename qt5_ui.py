@@ -116,11 +116,14 @@ class ICFPCPainter(QWidget):
             coef = (new_d.x * new_d.x + new_d.y * new_d.y) / (old_d.x * old_d.x + old_d.y * old_d.y) - 1
             if abs(coef) > correct_coef:
                 if (coef > 0):
-                    self.qp.setPen(QPen(Qt.blue, Qt.SolidLine))
+                    pen = QPen(Qt.blue, Qt.SolidLine)
                 else:
-                    self.qp.setPen(QPen(Qt.red, Qt.SolidLine))
+                    pen = QPen(Qt.red, Qt.SolidLine)
             else:
-                self.qp.setPen(QPen(Qt.darkGreen, Qt.SolidLine))
+                pen = QPen(Qt.darkGreen, Qt.SolidLine)
+
+            pen.setWidth(3)
+            self.qp.setPen(pen)
             self.draw_line(self.figure.vertices.vertices[u], self.figure.vertices.vertices[v])
 
     def draw_point(self, point):
