@@ -58,6 +58,7 @@ class ICFPCPainter(QWidget):
 
     def keyPressEvent(self, e):
         self.figure = Figure(Physics().apply(self.input, self.figure.vertices), self.input.figure.edges)
+        self.update()
 
     def draw_hole(self):
         self.qp.setPen(QPen(Qt.black, Qt.SolidLine))
