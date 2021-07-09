@@ -17,7 +17,7 @@ class Physics(Transformation):
         for i, e in enumerate(data.figure.edges):
             a, b = data.figure.vertices[e[0]], data.figure.vertices[e[1]]
             a_cur, b_cur = cur[e[0]], cur[e[1]]
-            delta = (Vec.dist(a, b) - Vec.dist(a_cur, b_cur)) / Vec.dist(a_cur, b_cur)
+            delta = Vec.dist(a, b) - Vec.dist(a_cur, b_cur)
             forces[e[0]] += self.k * delta * (a_cur - b_cur).norm()
             forces[e[1]] += self.k * delta * (b_cur - a_cur).norm()
 
