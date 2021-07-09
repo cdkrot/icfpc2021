@@ -18,7 +18,7 @@ def api_post(url: str, data, headers=dict()):
     headers = copy.deepcopy(headers)
     headers['Authorization'] = f'Bearer {API_TOKEN}'
     
-    r = requests.post(f'https://poses.live/api/{url}', headers=headers, data=data)
+    r = requests.post(f'https://poses.live/api/{url}', headers=headers, data=json.dumps(data))
     return r.json()
     
 
@@ -28,3 +28,5 @@ def load(problem: str) -> Input:
     return inp
 
 
+def submit(problem: str, solution: VerticesList):
+    return api_post(f'problems/{problem}/solutions', data={'vertices': solution.to_json()})
