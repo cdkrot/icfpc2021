@@ -32,16 +32,17 @@ class ICFPCPainter(QWidget):
         ys = list(map(lambda x: x.y, self.hole.vertices + self.figure.vertices.vertices))
         self.center = 0.5 * Vec(min(xs) + max(xs), min(ys) + max(ys))
         self.scale_factor = max(max(xs) - min(xs), max(ys) - min(ys)) * 1.5
+        self.user_scale = 1.0
 
     def scale(self, p):
-        transformed = (1 / self.scale_factor) * (p - self.center) + Vec(0.5, 0.5)
+        transformed = (self.user_scale / self.scale_factor) * (p - self.center) + Vec(0.5, 0.5)
         return transformed.x * ICFPCPainter.HEIGHT, transformed.y * ICFPCPainter.HEIGHT
 
     def unscale(self, transformed):
         transformed = Vec(transformed[0], transformed[1])
         transformed = (1 / ICFPCPainter.HEIGHT) * transformed
         transformed -= Vec(0.5, 0.5)
-        transformed *= self.scale_factor
+        transformed *= self.scale_factor / self.user_scale
 
         return transformed + self.center
 
@@ -75,6 +76,24 @@ class ICFPCPainter(QWidget):
                     state = physics.apply(self.input, state)
                     self.figure.vertices = state
                     self.update()
+        elif e.key() == Qt.Key_Plus:
+            self.user_scale *= 1.1
+            self.update()
+        elif e.key() == Qt.Key_Minus:
+            self.user_scale /= 1.1
+            self.update()
+        elif e.key() == Qt.Key_Left:
+            self.center.x -= (ICFPCPainter.HEIGHT / 40) / self.user_scale
+            self.update()
+        elif e.key() == Qt.Key_Right:
+            self.center.x += (ICFPCPainter.HEIGHT / 40) / self.user_scale
+            self.update()
+        elif e.key() == Qt.Key_Up:
+            self.center.y -= (ICFPCPainter.HEIGHT / 40) / self.user_scale
+            self.update()
+        elif e.key() == Qt.Key_Down:
+            self.center.y += (ICFPCPainter.HEIGHT / 40) / self.user_scale
+            self.update()
         else:
             self.figure.vertices = Physics().apply(self.input, self.figure.vertices)
             self.update()
