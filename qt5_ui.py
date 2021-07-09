@@ -66,13 +66,21 @@ class ICFPCPainter(QWidget):
             self.draw_line(self.hole.vertices[i - 1], self.hole.vertices[i])
 
     def draw_figure(self):
-        self.qp.setPen(QPen(Qt.red, Qt.SolidLine))
-        self.qp.setBrush(QBrush(Qt.red, Qt.SolidPattern))
+        self.qp.setPen(QPen(Qt.green, Qt.SolidLine))
+        self.qp.setBrush(QBrush(Qt.green, Qt.SolidPattern))
         for v in self.figure.vertices.vertices:
             self.draw_point(v)
-        for u, v in self.figure.edges:
-            self.draw_line(self.figure.vertices.vertices[u], self.figure.vertices.vertices[v])
 
+        for u, v in self.figure.edges:
+            new_d = self.figure.vertices.vertices[u] - self.figure.vertices.vertices[v]
+            old_d = self.input.figure.vertices.vertices[u] - self.input.figure.vertices.vertices[v]
+            coef = (self.input.epsilon / 10**6)
+            if abs((new_d.x * new_d.x + new_d.y * new_d.y) /
+                   (old_d.x * old_d.x + old_d.y * old_d.y) - 1) > coef:
+                self.qp.setPen(QPen(Qt.red, Qt.SolidLine))
+
+            self.draw_line(self.figure.vertices.vertices[u], self.figure.vertices.vertices[v])
+            self.qp.setPen(QPen(Qt.green, Qt.SolidLine))
     def draw_point(self, point):
         r = ICFPCPainter.POINT_RADIUS
         self.qp.drawEllipse(QPoint(*self.scale(point)), r, r)
@@ -110,6 +118,8 @@ def main():
     app = QApplication(sys.argv)
     window = ICFPCPainter(problem_input)
     app.exec_()
+
+
 
 
 if __name__ == "__main__":
