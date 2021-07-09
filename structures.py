@@ -15,8 +15,22 @@ class Vec:
         self.x += b.x
         self.y += b.y
 
+    def minus(self, b):
+        self.x += b.x
+        self.y += b.y
+
     def __repr__(self):
         return f'Vec({self.x}, {self.y})'
+
+    def __add__(self, other):
+        return Vec(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other):
+        return Vec(self.x - other.x, self.y - other.y)
+
+    def len2(self):
+        return self.x * self.x + self.y * self.y
+
 
 # Hole
 # solution
@@ -34,6 +48,11 @@ class VerticesList:
     def __repr__(self):
         return 'VerticesList([' + ','.join(repr(v) for v in self.vertices) + '])'
 
+    def __getitem__(self, i):
+        return self.vertices[i]
+
+    def __setitem__(self, i, val):
+        self.vertices[i] = val
 
 class Figure:
     def __init__(self, vertices: VerticesList = VerticesList(),
@@ -52,10 +71,12 @@ class Figure:
 class Input:
     def __init__(self, hole: VerticesList = VerticesList(),
                  figure: Figure = Figure(),
-                 epsilon=0):
+                 epsilon=0,
+                 problem_id=None):
         self.hole = copy.deepcopy(hole)
         self.figure = copy.deepcopy(figure)
         self.epsilon = epsilon
+        self.problem_id = problem_id
 
     def read_json(self, data):
         self.epsilon = data['epsilon']
