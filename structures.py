@@ -9,6 +9,16 @@ class Vec:
     def __repr__(self):
         return f'Vec({self.x}, {self.y})'
 
+    def __add__(self, other: Vec):
+        return Vec(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other: Vec):
+        return Vec(self.x - other.x, self.y - other.y)
+
+    def len2(self):
+        return self.x * self.x + self.y * self.y
+
+
 # Hole
 # solution
 # Figure.vertices
