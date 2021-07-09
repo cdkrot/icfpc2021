@@ -1,7 +1,12 @@
 import typing
 import copy
+from abc import ABCMeta, abstractmethod
 
 class Vec:
+    @staticmethod
+    def dist2(a, b):
+        return (a.x - b.x) ** 2 + (a.y - b.y) ** 2
+
     def __init__(self, x=0, y=0):
         self.x = x
         self.y = y
@@ -9,11 +14,29 @@ class Vec:
     def __repr__(self):
         return f'Vec({self.x}, {self.y})'
 
-    def __add__(self, other: Vec):
+    def __add__(self, other):
         return Vec(self.x + other.x, self.y + other.y)
 
-    def __sub__(self, other: Vec):
+    def __sub__(self, other):
         return Vec(self.x - other.x, self.y - other.y)
+
+    def __imul__(self, k):
+        self.x *= k
+        self.y *= k
+        return self
+
+    def __iadd__(self, other):
+        self.x += other.x
+        self.y += other.y
+        return self
+
+    def __isub__(self, other):
+        self.x -= other.x
+        self.y -= other.y
+        return self
+
+    def __rmul__(self, k):
+        return Vec(k * self.x, k * self.y)
 
     def len2(self):
         return self.x * self.x + self.y * self.y
@@ -35,6 +58,11 @@ class VerticesList:
     def __repr__(self):
         return 'VerticesList([' + ','.join(repr(v) for v in self.vertices) + '])'
 
+    def __getitem__(self, i):
+        return self.vertices[i]
+
+    def __setitem__(self, i, val):
+        self.vertices[i] = val
 
 class Figure:
     def __init__(self, vertices: VerticesList = VerticesList(),
@@ -53,10 +81,12 @@ class Figure:
 class Input:
     def __init__(self, hole: VerticesList = VerticesList(),
                  figure: Figure = Figure(),
-                 epsilon=0):
+                 epsilon=0,
+                 problem_id=None):
         self.hole = copy.deepcopy(hole)
         self.figure = copy.deepcopy(figure)
         self.epsilon = epsilon
+        self.problem_id = problem_id
 
     def read_json(self, data):
         self.epsilon = data['epsilon']
@@ -65,3 +95,10 @@ class Input:
 
     def __repr__(self):
         return f'Input(hole={self.hole}, figure={self.figure}, epsilon={self.epsilon})'
+
+
+class Transformation(ABCMeta):
+
+    @abstractmethod
+    def apply(self, data: Input) -> VerticesList:
+        return data.figure.vertices
