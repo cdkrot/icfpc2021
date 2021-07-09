@@ -3,21 +3,13 @@ import copy
 from abc import ABCMeta, abstractmethod
 
 class Vec:
+    @staticmethod
+    def dist2(a, b):
+        return (a.x - b.x) ** 2 + (a.y - b.y) ** 2
+
     def __init__(self, x=0, y=0):
         self.x = x
         self.y = y
-
-    @staticmethod
-    def dist2(a, b) -> typing.Int:
-        return (a.x - b.x) ** 2 + (a.y - b.y) ** 2
-
-    def plus(self, b):
-        self.x += b.x
-        self.y += b.y
-
-    def minus(self, b):
-        self.x += b.x
-        self.y += b.y
 
     def __repr__(self):
         return f'Vec({self.x}, {self.y})'
@@ -27,6 +19,24 @@ class Vec:
 
     def __sub__(self, other):
         return Vec(self.x - other.x, self.y - other.y)
+
+    def __imul__(self, k):
+        self.x *= k
+        self.y *= k
+        return self
+
+    def __iadd__(self, other):
+        self.x += other.x
+        self.y += other.y
+        return self
+
+    def __isub__(self, other):
+        self.x -= other.x
+        self.y -= other.y
+        return self
+
+    def __rmul__(self, k):
+        return Vec(k * self.x, k * self.y)
 
     def len2(self):
         return self.x * self.x + self.y * self.y
