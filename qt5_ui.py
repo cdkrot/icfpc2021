@@ -55,8 +55,28 @@ class ICFPCPainter(QWidget):
         self.qp.end()
 
     def keyPressEvent(self, e):
-        self.figure = Figure(Physics().apply(self.input, self.figure.vertices), self.input.figure.edges)
-        self.update()
+        if e.key() == Qt.Key_S:
+            try:
+                rounded = VerticesList([Vec(round(p.x), round(p.y)) for p in self.figure.vertices])
+                net.check_and_submit(self.input, rounded)
+            except Exception as ex:
+                print(ex)
+        elif e.key() == Qt.Key_I:
+            rounded = VerticesList([Vec(round(p.x), round(p.y)) for p in self.figure.vertices])
+            self.figure.vertices = rounded
+            self.update()
+        elif e.key() == Qt.Key_P:
+            state = self.figure.vertices
+
+            for go in [0.1, 0.05, 0.001]:
+                physics = Physics(go)
+                for steps in range(int(1e3)):
+                    state = physics.apply(self.input, state)
+                    self.figure.vertices = state
+                    self.update()
+        else:
+            self.figure.vertices = Physics().apply(self.input, self.figure.vertices)
+            self.update()
 
     def draw_hole(self):
         self.qp.setPen(QPen(Qt.black, Qt.SolidLine))
