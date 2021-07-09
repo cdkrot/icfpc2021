@@ -1,10 +1,19 @@
 import typing
 import copy
+from abc import ABCMeta, abstractmethod
 
 class Vec:
     def __init__(self, x=0, y=0):
         self.x = x
         self.y = y
+
+    @staticmethod
+    def dist2(a, b) -> typing.Int:
+        return (a.x - b.x) ** 2 + (a.y - b.y) ** 2
+
+    def plus(self, b):
+        self.x += b.x
+        self.y += b.y
 
     def __repr__(self):
         return f'Vec({self.x}, {self.y})'
@@ -55,3 +64,10 @@ class Input:
 
     def __repr__(self):
         return f'Input(hole={self.hole}, figure={self.figure}, epsilon={self.epsilon})'
+
+
+class Transformation(ABCMeta):
+
+    @abstractmethod
+    def apply(self, data: Input) -> VerticesList:
+        return data.figure.vertices
