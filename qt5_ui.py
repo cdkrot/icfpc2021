@@ -12,6 +12,7 @@ class ICFPCPainter(QWidget):
     WIDTH = 700
     HEIGHT = 700
     MARGIN = 50
+    DRAG_THRESHOLD = 9
 
     def __init__(self, input):
         super(QWidget, self).__init__()
@@ -73,22 +74,25 @@ class ICFPCPainter(QWidget):
         self.qp.drawLine(QPoint(*self.scale(a)), QPoint(*self.scale(b)))
 
     def mousePressEvent(self, e):
-        self.dragging = True
-        print("mouse press", e)
+        self.dragging = None
+        pos = self.unscale((e.pos().x(), e.pos().y()))
+        mndist_id = 0
+        mndist = 1e18
+        for i in range(len(self.figure.vertices.vertices)):
+            new_mndist = (self.figure.vertices.vertices[i] - pos).len2()
+            if new_mndist < mndist:
+                mndist = new_mndist
+                mndist_id = i
+        if mndist <= ICFPCPainter.DRAG_THRESHOLD:
+            self.dragging = mndist_id
 
     def mouseMoveEvent(self, e):
-        if self.dragging:
-            print("mouse move", e)
+        if self.dragging is not None:
+            self.figure.vertices.vertices[self.dragging] = self.unscale((e.pos().x(), e.pos().y()))
+            self.update()
 
     def mouseReleaseEvent(self, e):
-        self.dragging = True
-        print("mouse release", e)
-
-
-class Figure:
-    def __init__(self, vertices, edges):
-        self.vertices = vertices
-        self.edges = edges
+        self.dragging = None
 
 
 def main():
