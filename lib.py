@@ -29,7 +29,7 @@ def inside_polygon(p: Vec, polygon: typing.List[Vec]):
         if a.y == b.y:
             continue
 
-        if p.y < min(a.y, b.y) or p.y > max(a.y, b.y):
+        if p.y < min(a.y, b.y) or p.y >= max(a.y, b.y):
             continue
         
         if a.y > b.y:
