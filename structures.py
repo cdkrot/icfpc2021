@@ -2,10 +2,15 @@ import typing
 import copy
 from abc import ABCMeta, abstractmethod
 
+
 class Vec:
     @staticmethod
     def dist2(a, b):
         return (a.x - b.x) ** 2 + (a.y - b.y) ** 2
+
+    @staticmethod
+    def dist(a, b):
+        return ((a.x - b.x) ** 2 + (a.y - b.y) ** 2) ** 0.5
 
     def __init__(self, x=0, y=0):
         self.x = x
@@ -64,6 +69,7 @@ class VerticesList:
     def __setitem__(self, i, val):
         self.vertices[i] = val
 
+
 class Figure:
     def __init__(self, vertices: VerticesList = VerticesList(),
                  edges: typing.List[typing.Tuple[int, int]] = []):
@@ -99,6 +105,13 @@ class Input:
 
 class Transformation(ABCMeta):
 
+    @staticmethod
+    def apply_all(transformations, data: Input):
+        vertices = copy.deepcopy(data.figure.vertices)
+        for t in transformations:
+            vertices = t.apply(data, vertices)
+        return vertices
+
     @abstractmethod
-    def apply(self, data: Input) -> VerticesList:
+    def apply(self, data: Input, cur: VerticesList) -> VerticesList:
         return data.figure.vertices

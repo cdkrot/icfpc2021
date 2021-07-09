@@ -6,6 +6,8 @@ import argparse
 import sys
 import net
 
+from structures import *
+from physics import Physics
 
 class ICFPCPainter(QWidget):
     POINT_RADIUS = 4
@@ -17,6 +19,7 @@ class ICFPCPainter(QWidget):
         super(QWidget, self).__init__()
         self.setGeometry(0, 0, ICFPCPainter.WIDTH, ICFPCPainter.HEIGHT)
         self.hole = input.hole
+        self.input = input
         self.figure = input.figure
         self.init_cds()
         self.show()
@@ -41,6 +44,9 @@ class ICFPCPainter(QWidget):
         self.draw_figure()
         self.qp.end()
 
+    def keyPressEvent(self, e):
+        self.figure = Figure(Physics().apply(self.input, self.figure.vertices))
+
     def draw_hole(self):
         self.qp.setPen(QPen(Qt.black, Qt.SolidLine))
         for i in range(len(self.hole.vertices)):
@@ -60,13 +66,6 @@ class ICFPCPainter(QWidget):
 
     def draw_line(self, a, b):
         self.qp.drawLine(QPoint(*self.scale(a)), QPoint(*self.scale(b)))
-
-
-class Figure:
-    def __init__(self, vertices, edges):
-        self.vertices = vertices
-        self.edges = edges
-
 
 def main():
     argparser = argparse.ArgumentParser()
