@@ -56,7 +56,7 @@ def check_score(problem: Input, solution: VerticesList):
         for v in solution:
             closest = min(closest, (h - v).len())
         dislikes += closest
-    return ('ok', closest)
+    return ('ok', dislikes)
 
 
 def check_and_submit(problem: Input, solution: VerticesList):
