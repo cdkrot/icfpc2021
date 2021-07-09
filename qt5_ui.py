@@ -21,7 +21,7 @@ class ICFPCPainter(QWidget):
         self.setGeometry(0, 0, ICFPCPainter.WIDTH, ICFPCPainter.HEIGHT)
         self.hole = input.hole
         self.input = input
-        self.figure = input.figure
+        self.figure = copy.deepcopy(input.figure)
         self.dragging = False
         self.init_cds()
         self.show()
@@ -57,7 +57,7 @@ class ICFPCPainter(QWidget):
         self.qp.end()
 
     def keyPressEvent(self, e):
-        self.figure = Figure(Physics().apply(self.input, self.figure.vertices))
+        self.figure = Figure(Physics().apply(self.input, self.figure.vertices), self.input.figure.edges)
 
     def draw_hole(self):
         self.qp.setPen(QPen(Qt.black, Qt.SolidLine))

@@ -117,7 +117,10 @@ class Input:
         return f'Input(hole={self.hole}, figure={self.figure}, epsilon={self.epsilon})'
 
 
-class Transformation(ABCMeta):
+class Transformation(object, metaclass=ABCMeta):
+
+    def __init__(self):
+        pass
 
     @staticmethod
     def apply_all(transformations, data: Input):
