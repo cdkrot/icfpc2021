@@ -9,7 +9,7 @@ class Vec:
 
 class Figure:
     def __init__(self, points: typing.List[Vec] = [],
-                 edges: typing.List[typing.Tuple[int, int]]):
+                 edges: typing.List[typing.Tuple[int, int]] = []):
         self.points = copy.deepcopy(points)
         self.edges = copy.deepcopy(edges)
         
