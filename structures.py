@@ -57,6 +57,8 @@ class Vec:
     def cross(v1, v2):
         return v1.x * v2.y - v1.y * v2.x
 
+    def norm(v):
+        return Vec(v.x / v.len(), v.y / v.len())
 
 # Hole
 # solution

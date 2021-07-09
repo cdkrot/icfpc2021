@@ -3,7 +3,7 @@ from structures import *
 
 class Physics(Transformation):
 
-    def __init__(self, k=0.01):
+    def __init__(self, k=0.05):
         super(Transformation, self).__init__()
         self.k = k
 
@@ -17,9 +17,9 @@ class Physics(Transformation):
         for i, e in enumerate(data.figure.edges):
             a, b = data.figure.vertices[e[0]], data.figure.vertices[e[1]]
             a_cur, b_cur = cur[e[0]], cur[e[1]]
-            delta = (Vec.dist(a, b) - Vec.dist(a_cur, b_cur)) / Vec.dist(a, b)
-            forces[e[0]] += self.k * delta * (a_cur - b_cur)
-            forces[e[1]] += self.k * delta * (b_cur - a_cur)
+            delta = (Vec.dist(a, b) - Vec.dist(a_cur, b_cur)) / Vec.dist(a_cur, b_cur)
+            forces[e[0]] += self.k * delta * (a_cur - b_cur).norm()
+            forces[e[1]] += self.k * delta * (b_cur - a_cur).norm()
 
         for i, v in enumerate(cur):
             vertices.append(v + forces[i])
