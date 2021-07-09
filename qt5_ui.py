@@ -29,22 +29,20 @@ class ICFPCPainter(QWidget):
     def init_cds(self):
         xs = list(map(lambda x: x.x, self.hole.vertices + self.figure.vertices.vertices))
         ys = list(map(lambda x: x.y, self.hole.vertices + self.figure.vertices.vertices))
-        self.min_x, self.max_x = min(xs), max(xs)
-        self.min_y, self.max_y = min(ys), max(ys)
+        self.center = 0.5 * Vec(min(xs) + max(xs), min(ys) + max(ys))
+        self.scale_factor = max(max(xs) - min(xs), max(ys) - min(ys)) * 1.5
 
     def scale(self, p):
-        x, y = p.x, p.y
-        mgn = ICFPCPainter.MARGIN
-        nx = (x - self.min_x) / (self.max_x - self.min_x) * (ICFPCPainter.WIDTH - 2 * mgn) + mgn
-        ny = (y - self.min_y) / (self.max_y - self.min_y) * (ICFPCPainter.HEIGHT - 2 * mgn) + mgn
-        return nx, ny
+        transformed = (1 / self.scale_factor) * (p - self.center) + Vec(0.5, 0.5)
+        return transformed.x * ICFPCPainter.HEIGHT, transformed.y * ICFPCPainter.HEIGHT
 
-    def unscale(self, p):
-        x, y = p
-        mgn = ICFPCPainter.MARGIN
-        nx = (x - mgn) / (ICFPCPainter.WIDTH - 2 * mgn) * (self.max_x - self.min_x) + self.min_x
-        ny = (y - mgn) / (ICFPCPainter.HEIGHT - 2 * mgn) * (self.max_y - self.min_y) + self.min_y
-        return net.Vec(nx, ny)
+    def unscale(self, transformed):
+        transformed = Vec(transformed[0], transformed[1])
+        transformed = (1 / ICFPCPainter.HEIGHT) * transformed
+        transformed -= Vec(0.5, 0.5)
+        transformed *= self.scale_factor
+        
+        return transformed + self.center
 
     def paintEvent(self, e):
         self.draw_input()
