@@ -52,8 +52,9 @@ def is_edge_valid(a: int, b: int, problem: Input, solution: VerticesList, print_
     dist_new = (solution[a] - solution[b]).len2()
     ratio = abs(Fraction(dist_new, dist_orig) - 1)
     if ratio > Fraction(problem.epsilon, int(1e6)):
-        if print_message: print(f"edge {a}-{b} has bad length")
+        if print_message: print(f"edge {a}-{b} has bad length, target: {dist_orig}, reality: {dist_new}")
         return False
+    return True
 
 def is_valid(problem: Input, solution: VerticesList, print_message=False):
     for (a, b) in problem.figure.edges:
