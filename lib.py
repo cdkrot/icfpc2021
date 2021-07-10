@@ -65,6 +65,7 @@ def is_valid(problem: Input, solution: VerticesList, print_message=False):
         if not inside_polygon(solution[a], problem.hole.vertices):
             if print_message: print(f"vertex {a} not inside the hole")
             return False
+    return True
 
 # assumes solution is valid
 def count_dislikes(problem: Input, solution: VerticesList):
