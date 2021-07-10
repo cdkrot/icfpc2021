@@ -115,6 +115,9 @@ class ICFPCPainter(QWidget):
         for i in range(len(self.hole.vertices)):
             self.draw_line(self.hole.vertices[i - 1], self.hole.vertices[i])
 
+            self.qp.setBrush(QBrush(Qt.gray, Qt.SolidPattern))
+            self.draw_point(self.hole.vertices[i])
+
     def draw_figure(self):
         from fractions import Fraction
 
