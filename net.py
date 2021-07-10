@@ -33,7 +33,6 @@ def load(problem: str) -> Input:
 def submit(problem: str, solution: VerticesList):
     return api_post(f'problems/{problem}/solutions', data={'vertices': solution.to_json()})
 
-
 def check_score(problem: Input, solution: VerticesList):
     from fractions import Fraction
     
@@ -60,9 +59,8 @@ def check_score(problem: Input, solution: VerticesList):
 
 
 def check_and_submit(problem: Input, solution: VerticesList):
-    sc = check_score(problem, solution)
-    if sc[0] != 'ok':
-        raise RuntimeError(f"Bad submission (reason: {sc[1]})")
+    if not lib.is_valid(problem, solution, True): raise RuntimeError("Bad submission")
+    dislikes = lib.count_dislikes(problem, solution)
 
     submit(problem.problem_id, solution)
-    print(f"Submitted {problem.problem_id}, expected score is {sc[1]}")
+    print(f"Submitted {problem.problem_id}, expected score is {dislikes}")

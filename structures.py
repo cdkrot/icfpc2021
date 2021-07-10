@@ -1,6 +1,7 @@
 import typing
 import copy
 from abc import ABCMeta, abstractmethod
+from shapely.geometry import Polygon
 
 
 class Vec:
@@ -60,6 +61,15 @@ class Vec:
     def norm(v):
         return Vec(v.x / v.len(), v.y / v.len())
 
+    def __eq__(self, b):
+        return self.x == b.x and self.y == b.y
+
+    def __hash__(self):
+        return hash((self.x, self.y))
+    
+    def to_tuple(self):
+        return (self.x, self.y)
+
 # Hole
 # solution
 # Figure.vertices
@@ -84,6 +94,10 @@ class VerticesList:
 
     def __len__(self):
         return len(self.vertices)
+    
+    # interprets the vertices list as a shapley polygon
+    def to_polygon(self):
+        return Polygon([v.to_tuple() for v in self.vertices])
 
 
 class Figure:
@@ -106,6 +120,7 @@ class Input:
                  epsilon=0,
                  problem_id=None):
         self.hole = copy.deepcopy(hole)
+        self.hole_polygon = self.hole.to_polygon()
         self.figure = copy.deepcopy(figure)
         self.epsilon = epsilon
         self.problem_id = problem_id
