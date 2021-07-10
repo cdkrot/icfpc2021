@@ -2,10 +2,10 @@ from structures import *
 
 
 class Physics(Transformation):
-
-    def __init__(self, k=0.05):
+    def __init__(self, k=0.05, is_pinned=None):
         super(Transformation, self).__init__()
         self.k = k
+        self.is_pinned = is_pinned
 
     def apply(self, data: Input, cur: VerticesList) -> VerticesList:
         forces = [Vec() for _ in cur]
@@ -29,6 +29,11 @@ class Physics(Transformation):
             forces[e[0]] += self.k * delta * (a_cur - b_cur).norm()
             forces[e[1]] += self.k * delta * (b_cur - a_cur).norm()
 
+        if self.is_pinned:
+            for i, val in enumerate(self.is_pinned):
+                if val:
+                    forces[i] = Vec()
+            
         for i, v in enumerate(cur):
             vertices.append(v + forces[i])
 

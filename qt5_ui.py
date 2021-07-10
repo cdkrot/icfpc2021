@@ -23,6 +23,7 @@ class ICFPCPainter(QWidget):
         self.hole = input.hole
         self.input = input
         self.figure = copy.deepcopy(input.figure)
+        self.is_pinned = [False for x in self.figure.vertices]
         self.dragging = False
         self.init_cds()
         self.show()
@@ -78,7 +79,7 @@ class ICFPCPainter(QWidget):
             state = self.figure.vertices
 
             for go in [0.1, 0.05, 0.001]:
-                physics = Physics(go)
+                physics = Physics(go, self.is_pinned)
                 for steps in range(int(1e3)):
                     state = physics.apply(self.input, state)
                     self.figure.vertices = state
@@ -102,7 +103,7 @@ class ICFPCPainter(QWidget):
             self.center.y += (ICFPCPainter.HEIGHT / 40) / self.user_scale
             self.update()
         else:
-            self.figure.vertices = Physics().apply(self.input, self.figure.vertices)
+            self.figure.vertices = Physics(is_pinned=self.is_pinned).apply(self.input, self.figure.vertices)
             self.update()
 
     def draw_hole(self):
@@ -113,11 +114,6 @@ class ICFPCPainter(QWidget):
     def draw_figure(self):
         from fractions import Fraction
 
-        self.qp.setPen(QPen(Qt.green, Qt.SolidLine))
-        self.qp.setBrush(QBrush(Qt.darkGreen, Qt.SolidPattern))
-        for v in self.figure.vertices.vertices:
-            self.draw_point(v)
-
         for u, v in self.figure.edges:
             new_d = self.figure.vertices.vertices[u] - self.figure.vertices.vertices[v]
             old_d = self.input.figure.vertices.vertices[u] - self.input.figure.vertices.vertices[v]
@@ -125,12 +121,23 @@ class ICFPCPainter(QWidget):
             coef = Fraction((new_d.x * new_d.x + new_d.y * new_d.y) / (old_d.x * old_d.x + old_d.y * old_d.y) - 1)
             if abs(coef) > correct_coef:
                 if (coef > 0):
-                    self.qp.setPen(QPen(Qt.blue, Qt.SolidLine))
+                    pen = QPen(Qt.blue, Qt.SolidLine)
                 else:
-                    self.qp.setPen(QPen(Qt.red, Qt.SolidLine))
+                    pen = QPen(Qt.red, Qt.SolidLine)
             else:
-                self.qp.setPen(QPen(Qt.darkGreen, Qt.SolidLine))
+                pen = QPen(Qt.darkGreen, Qt.SolidLine)
+
+            pen.setWidth(3)
+            self.qp.setPen(pen)
             self.draw_line(self.figure.vertices.vertices[u], self.figure.vertices.vertices[v])
+
+        self.qp.setPen(QPen(Qt.green, Qt.SolidLine))
+        for (pin, v) in zip(self.is_pinned, self.figure.vertices.vertices):
+            if pin:
+                self.qp.setBrush(QBrush(Qt.darkRed, Qt.SolidPattern))
+            else:
+                self.qp.setBrush(QBrush(Qt.darkGreen, Qt.SolidPattern))
+            self.draw_point(v)
 
     def draw_point(self, point):
         r = ICFPCPainter.POINT_RADIUS
@@ -149,8 +156,16 @@ class ICFPCPainter(QWidget):
             if new_mndist < mndist:
                 mndist = new_mndist
                 mndist_id = i
-        if mndist <= ICFPCPainter.DRAG_THRESHOLD:
-            self.dragging = mndist_id
+        
+        if mndist > ICFPCPainter.DRAG_THRESHOLD:
+            return
+
+        if e.buttons() & Qt.RightButton:
+            self.is_pinned[mndist_id] = not self.is_pinned[mndist_id]
+            self.update()
+        else:
+            if not self.is_pinned[mndist_id]:
+                self.dragging = mndist_id
 
     def mouseMoveEvent(self, e):
         if self.dragging is not None:
