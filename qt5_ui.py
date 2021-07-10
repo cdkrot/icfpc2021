@@ -54,6 +54,13 @@ class ICFPCPainter(QWidget):
         self.qp.begin(self)
         self.draw_hole()
         self.draw_figure()
+
+        self.qp.setPen(QPen(Qt.black, Qt.SolidLine))
+        for x in range(ICFPCPainter.WIDTH):
+            self.draw_line(Vec(x, 0), Vec(x, ICFPCPainter.HEIGHT))
+        for y in range(ICFPCPainter.HEIGHT):
+            self.draw_line(Vec(0, y), Vec(ICFPCPainter.WIDTH, y))
+
         self.qp.end()
 
     def keyPressEvent(self, e):
