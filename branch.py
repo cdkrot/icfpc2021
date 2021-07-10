@@ -1,10 +1,14 @@
-from lib import count_dislikes, inside_polygon, is_edge_valid
+from re import S
+from lib import count_dislikes, is_edge_valid
 import typing
 from structures import Vec, Figure, VerticesList, Input
 import copy
 from shapely.geometry import Point
 import net
+import argparse
 import time
+import itertools
+import math
 
 # this file contains a branch-and-bound algorithm to solve the problem by trying all combinations (but in a smart way).The run time can become really terrible, so it won't finish on many problem instances in a reasonable time
 # it's reasonable if there are few legal points and if the figure has only few vertices, all of which are highly connected
@@ -55,23 +59,71 @@ def branch_and_bound(fixed: typing.Set[int], remaining: typing.List[Vec], proble
 # ideas for improvement:
 # - compute good order
 # - treat order as a tree: if independent component can't find solution, there is no point in continuing
-# - look for other constraints
+# - store intermediate best solutions, so we can stop early
+def heuristic_order(fixed, remaining, problem: Input):
+    remaining = set(remaining)
+    rev_order = []
+    connectivity = dict([(i, 0) for i in remaining])
+    for a in remaining:
+        for b in problem.figure.neighbors[a]:
+            if b in fixed:
+                connectivity[a] += 1
+    while remaining:
+        a = max(connectivity, key=connectivity.get)
+        rev_order.append(a)
+        remaining.remove(a)
+        del connectivity[a]
+        for b in problem.figure.neighbors[a]:
+            if b in remaining:
+                connectivity[b] += 1
+    return list(reversed(rev_order))
+
+def run_branch_and_bound_for_perfect_solution(problem: Input):
+    legal_points = all_legal_points(problem)
+    solution = copy.deepcopy(problem.figure.vertices)
+    hole = problem.hole
+    figure_indices = range(len(problem.figure.vertices))
+    n = len(figure_indices)
+    k = len(hole)
+    print(f"there are {k} hole vertices and {n} figure vertices, {math.factorial(n) / math.factorial(n-k)} rounds")
+    round = 0
+    for perm in itertools.permutations(figure_indices, len(hole)):
+        round += 1
+        fixed = set()
+        valid = True
+        for i in range(len(hole)):
+            fixed.add(i)
+            solution[perm[i]] = hole[i]
+            if not is_point_valid(hole[i], perm[i], fixed, problem, solution):
+                valid = False
+                break
+        if not valid: continue
+        remaining = [i for i in figure_indices if i not in fixed]
+        remaining = heuristic_order(fixed, remaining, problem)
+        print(f"starting round {round}")
+        result, dislikes = branch_and_bound(fixed, remaining, problem, solution, legal_points, 0)
+        if result: return result, dislikes
+    print("Could not find any perfect solution!")
+    return None, -1
 
 def run_branch_and_bound(problem: Input, optimum: int = 0):
     legal_points = all_legal_points(problem)
-    print(f"there are {len(legal_points)} legal points")
     solution = copy.deepcopy(problem.figure.vertices)
-    solution, dislikes = branch_and_bound(set(), [i for i in range(len(solution))], problem, solution,  legal_points, optimum)
-    # finding a suitable order for the number of points significantly accelerates the search
-    # solution, dislikes = branch_and_bound(set(), [2, 0, 4, 3, 1], problem, solution,  legal_points)
-    print(f"The solution has {dislikes} dislikes")
-    print(solution)
+    remaining = heuristic_order(set(), [i for i in range(len(solution))], problem)
+    solution, dislikes = branch_and_bound(set(), remaining, problem, solution,  legal_points, optimum)
     return solution
 
-problem = net.load(36)
-optimum = 1444
+argparser = argparse.ArgumentParser()
+argparser.add_argument('problem', type=int, help="Problem id")
+argparser.add_argument('optimum', type=int, help="minimum number of dislikes (algorithm can terminate once it finds a solution of this quality)")
+args = argparser.parse_args()
+problem = net.load(args.problem)
+optimum = args.optimum
 start = time.time()
-solution = run_branch_and_bound(problem, optimum)
+if optimum > 0:
+    solution = run_branch_and_bound(problem, optimum)
+else:
+    run_branch_and_bound_for_perfect_solution(problem)
 end = time.time()
 print(f"the algorithm took {end - start} seconds")
 net.check_and_submit(problem, solution)
