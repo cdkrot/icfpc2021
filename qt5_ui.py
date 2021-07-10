@@ -96,6 +96,9 @@ class ICFPCPainter(QWidget):
                 u1 = self.input.hole[i - 1]
                 h_len = (u1 - u2).len2()
                 for e in edges:
+                    if self.is_pinned[e[0]] or self.is_pinned[e[1]]:
+                        continue
+
                     from fractions import Fraction
 
                     v1 = self.input.figure.vertices[e[0]]
