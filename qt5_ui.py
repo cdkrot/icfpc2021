@@ -1,3 +1,4 @@
+import json
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtGui import QPainter, QBrush, QPen
@@ -18,12 +19,14 @@ class ICFPCPainter(QWidget):
     MARGIN = 50
     DRAG_THRESHOLD = 9
 
-    def __init__(self, input):
+    def __init__(self, input, input_vertices=None):
         super(QWidget, self).__init__()
         self.setGeometry(0, 0, ICFPCPainter.WIDTH, ICFPCPainter.HEIGHT)
         self.hole = input.hole
         self.input = input
         self.figure = copy.deepcopy(input.figure)
+        if input_vertices:
+            self.figure.vertices = copy.deepcopy(input_vertices)
         self.is_pinned = [False for x in self.figure.vertices]
         self.dragging = False
         self.init_cds()
@@ -216,10 +219,18 @@ class ICFPCPainter(QWidget):
 def main():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('problem', type=str, help="Problem id")
+    argparser.add_argument('--vertices', dest="vertices", help="Load vertices from a file (JSON)")
     args = argparser.parse_args()
     problem_input = net.load(args.problem)
+    if args.vertices:
+        with open(args.vertices) as f:
+            vs = VerticesList()
+            vs.read_json(json.loads(f.read()))
+            print("Loaded vertices:", vs)
+    else:
+        vs = None
     app = QApplication(sys.argv)
-    window = ICFPCPainter(problem_input)
+    window = ICFPCPainter(problem_input, vs)
     app.exec_()
 
 
