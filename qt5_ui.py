@@ -5,6 +5,7 @@ from PyQt5.QtGui import QPainter, QBrush, QPen
 import argparse
 import sys
 import net
+import random
 
 from structures import *
 from physics import Physics
@@ -80,6 +81,32 @@ class ICFPCPainter(QWidget):
                     state = physics.apply(self.input, state)
                     self.figure.vertices = state
                     self.update()
+        elif e.key() == Qt.Key_R:
+            xs = list(map(lambda x: x.x, self.hole.vertices))
+            ys = list(map(lambda x: x.y, self.hole.vertices))
+            for i, _ in enumerate(self.figure.vertices):
+                rx = random.uniform(min(xs), max(xs))
+                ry = random.uniform(min(ys), max(ys))
+                self.figure.vertices[i] = Vec(rx, ry)
+            self.update()
+        elif e.key() == Qt.Key_U:
+            edges = copy.deepcopy(self.input.figure.edges)
+            random.shuffle(edges)
+            for i, u2 in enumerate(self.input.hole):
+                u1 = self.input.hole[i - 1]
+                h_len = (u1 - u2).len2()
+                for e in edges:
+                    from fractions import Fraction
+
+                    v1 = self.input.figure.vertices[e[0]]
+                    v2 = self.input.figure.vertices[e[1]]
+                    p_len = (v1 - v2).len2()
+                    ratio = abs(Fraction(h_len, p_len) - 1)
+                    if ratio <= Fraction(self.input.epsilon, int(1e6)):
+                        self.figure.vertices[e[0]] = copy.deepcopy(u1)
+                        self.figure.vertices[e[1]] = copy.deepcopy(u2)
+                        break
+            self.update()
         elif e.key() == Qt.Key_Plus:
             self.user_scale *= 1.1
             self.update()
