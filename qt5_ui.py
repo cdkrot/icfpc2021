@@ -53,14 +53,10 @@ class ICFPCPainter(QWidget):
     def draw_input(self):
         self.qp = QPainter()
         self.qp.begin(self)
+
+        self.draw_grid()
         self.draw_hole()
         self.draw_figure()
-
-        self.qp.setPen(QPen(Qt.black, Qt.SolidLine))
-        for x in range(ICFPCPainter.WIDTH):
-            self.draw_line(Vec(x, 0), Vec(x, ICFPCPainter.HEIGHT))
-        for y in range(ICFPCPainter.HEIGHT):
-            self.draw_line(Vec(0, y), Vec(ICFPCPainter.WIDTH, y))
 
         self.qp.end()
 
@@ -106,6 +102,14 @@ class ICFPCPainter(QWidget):
             self.figure.vertices = Physics(is_pinned=self.is_pinned).apply(self.input, self.figure.vertices)
             self.update()
 
+    def draw_grid(self):        
+        self.qp.setPen(QPen(Qt.gray, Qt.SolidLine))
+        for x in range(-50, ICFPCPainter.WIDTH):
+            self.draw_line(Vec(x, -50), Vec(x, ICFPCPainter.HEIGHT))
+        for y in range(-50, ICFPCPainter.HEIGHT):
+            self.draw_line(Vec(-50, y), Vec(ICFPCPainter.WIDTH, y))
+
+            
     def draw_hole(self):
         self.qp.setPen(QPen(Qt.black, Qt.SolidLine))
         for i in range(len(self.hole.vertices)):
