@@ -13,6 +13,8 @@ import math
 # this file contains a branch-and-bound algorithm to solve the problem by trying all combinations (but in a smart way).The run time can become really terrible, so it won't finish on many problem instances in a reasonable time
 # it's reasonable if there are few legal points and if the figure has only few vertices, all of which are highly connected
 
+best_found_dislikes = 9999999999
+
 # returns a set containing all legal points, i.e.Vec within the polygon
 def all_legal_points(problem: Input):
     x_coords = [v.x for v in problem.hole]
@@ -35,8 +37,11 @@ def is_point_valid(p: Vec, a: int, fixed: typing.Set[int], problem: Input, solut
 
 def branch_and_bound(fixed: typing.Set[int], remaining: typing.List[Vec], problem: Input, solution: VerticesList, all_legal_points: typing.Set[Vec], optimum: int = 0):
     if not remaining:
+        global best_found_dislikes
         dislikes = count_dislikes(problem, solution)
-        print(f"found a solution with {dislikes} dislikes")
+        if dislikes < best_found_dislikes:
+            print(f"found a solution with {dislikes} dislikes")
+            best_found_dislikes = dislikes
         return solution, dislikes
     a = remaining.pop()
     fixed.add(a)
@@ -69,7 +74,9 @@ def heuristic_order(fixed, remaining, problem: Input):
             if b in fixed:
                 connectivity[a] += 1
     while remaining:
-        a = max(connectivity, key=connectivity.get)
+        max_connectivity = max(connectivity.values())
+        candidates = [a for a in remaining if connectivity[a] == max_connectivity]
+        a = max(candidates, key=lambda a : len(problem.figure.neighbors[a]))
         rev_order.append(a)
         remaining.remove(a)
         del connectivity[a]
@@ -85,10 +92,12 @@ def run_branch_and_bound_for_perfect_solution(problem: Input):
     figure_indices = range(len(problem.figure.vertices))
     n = len(figure_indices)
     k = len(hole)
-    print(f"there are {k} hole vertices and {n} figure vertices, {math.factorial(n) / math.factorial(n-k)} rounds")
+    max_round = math.factorial(n) / math.factorial(n-k)
+    print(f"there are {k} hole vertices and {n} figure vertices, {max_round} rounds")
     round = 0
     for perm in itertools.permutations(figure_indices, len(hole)):
         round += 1
+        if round % 100000 == 0: print(f"checkpoint {round}")
         fixed = set()
         valid = True
         for i in range(len(hole)):
@@ -100,7 +109,7 @@ def run_branch_and_bound_for_perfect_solution(problem: Input):
         if not valid: continue
         remaining = [i for i in figure_indices if i not in fixed]
         remaining = heuristic_order(fixed, remaining, problem)
-        print(f"starting round {round}")
+        print(f"starting round {round} of {max_round}")
         result, dislikes = branch_and_bound(fixed, remaining, problem, solution, legal_points, 0)
         if result: return result, dislikes
     print("Could not find any perfect solution!")
@@ -119,6 +128,7 @@ argparser.add_argument('optimum', type=int, help="minimum number of dislikes (al
 args = argparser.parse_args()
 problem = net.load(args.problem)
 optimum = args.optimum
+best_found_dislikes = 9999999999
 start = time.time()
 if optimum > 0:
     solution = run_branch_and_bound(problem, optimum)
