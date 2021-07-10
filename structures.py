@@ -105,13 +105,23 @@ class Figure:
                  edges: typing.List[typing.Tuple[int, int]] = []):
         self.vertices = copy.deepcopy(vertices)
         self.edges = copy.deepcopy(edges)
+        self.neighbors = self.compute_neighbors()
 
     def read_json(self, data):
         self.vertices.read_json(data['vertices'])
         self.edges = [(pt[0], pt[1]) for pt in data['edges']]
+        self.neighbors = self.compute_neighbors()
 
     def __repr__(self):
         return f'Figure(vertices={self.vertices}, edges={self.edges})'
+
+    def compute_neighbors(self):
+        indices = [i for i in range(len(self.vertices))]
+        neighbors = dict([(i, []) for i in indices])
+        for a, b in self.edges:
+            neighbors[a].append(b)
+            neighbors[b].append(a)
+        return neighbors
 
 
 class Input:
@@ -129,6 +139,7 @@ class Input:
         self.epsilon = data['epsilon']
         self.figure.read_json(data['figure'])
         self.hole.read_json(data['hole'])
+        self.hole_polygon = self.hole.to_polygon()
 
     def __repr__(self):
         return f'Input(hole={self.hole}, figure={self.figure}, epsilon={self.epsilon})'
