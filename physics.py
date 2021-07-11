@@ -26,8 +26,13 @@ class Physics(Transformation):
             import math
             delta = Vec.dist(a, b) - Vec.dist(a_cur, b_cur)
             
-            forces[e[0]] += self.k * delta * (a_cur - b_cur).norm()
-            forces[e[1]] += self.k * delta * (b_cur - a_cur).norm()
+            if a_cur != b_cur:
+                forces[e[0]] += self.k * delta * (a_cur - b_cur).norm()
+                forces[e[1]] += self.k * delta * (b_cur - a_cur).norm()
+            else:
+                # Select arbitrary direction 
+                forces[e[0]] += self.k * delta * Vec(1,0)
+                forces[e[1]] += self.k * delta * Vec(-1,0)
 
         if self.is_pinned:
             for i, val in enumerate(self.is_pinned):

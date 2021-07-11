@@ -67,19 +67,6 @@ def is_valid(problem: Input, solution: VerticesList, print_message=False):
             return False
     return True
 
-def count_invalid(problem: Input, solution: VerticesList, print_message=False):
-    invalid_edges = 0
-    for (a, b) in problem.figure.edges:
-        if not is_edge_valid(a, b, problem, solution, print_message):
-            invalid_edges += 1
-
-    invalid_vertices = 0
-    for a in range(len(solution)):
-        if not inside_polygon(solution[a], problem.hole.vertices):
-            if print_message: print(f"vertex {a} not inside the hole")
-            invalid_vertices += 1
-    return invalid_edges, invalid_vertices
-
 # assumes solution is valid
 def count_dislikes(problem: Input, solution: VerticesList):
     dislikes = 0
